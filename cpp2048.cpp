@@ -46,36 +46,39 @@ void reverseSerial(int (&arr)[4])
 
 void checkSerial(int (&arr)[4])
 {
-    int j = 3;
-    while (j != 0) {
-
-	for (int i = 3; i > 0; --i) {
-	    if ((arr[i] == 0) && (arr[i - 1] != 0)) {
-		arr[i] = arr[i - 1];
-		arr[i - 1] = 0;
-	    }
-	}
-	j--;
+    // Step 1: Compact - move all non-zero values to the right
+    int write_pos = 3;
+    for (int read_pos = 3; read_pos >= 0; read_pos--) {
+        if (arr[read_pos] != 0) {
+            arr[write_pos] = arr[read_pos];
+            if (write_pos != read_pos) {
+                arr[read_pos] = 0;
+            }
+            write_pos--;
+        }
     }
 
-    if ((arr[3] == arr[2]) && (arr[3] != 0)) {
-	arr[3] *= 2;
-	arr[2] = arr[1];
-	arr[1] = arr[0];
-	arr[0] = 0;
+    // Step 2: Merge adjacent equal tiles from right to left
+    for (int i = 3; i > 0; i--) {
+        if (arr[i] != 0 && arr[i] == arr[i-1]) {
+            arr[i] *= 2;
+            arr[i-1] = 0;
+            // Skip the next position to prevent double-merge
+            i--;
+        }
     }
 
-    if ((arr[2] == arr[1]) && (arr[2] != 0)) {
-	arr[2] *= 2;
-	arr[1] = arr[0];
-	arr[0] = 0;
+    // Step 3: Compact again after merging
+    write_pos = 3;
+    for (int read_pos = 3; read_pos >= 0; read_pos--) {
+        if (arr[read_pos] != 0) {
+            arr[write_pos] = arr[read_pos];
+            if (write_pos != read_pos) {
+                arr[read_pos] = 0;
+            }
+            write_pos--;
+        }
     }
-
-    if ((arr[1] == arr[0]) && (arr[1] != 0)) {
-	arr[1]*= 2;
-	arr[0] = 0;
-    }
-
 }
 
 void processArray(int direction, int (&arr)[4][4])
@@ -150,10 +153,11 @@ void addsTwo(int (&arr)[4][4])
     srand(time(NULL));
 
     while (1) {
-	int ranX = rand() % 3;
-	int ranY = rand() % 3;
+	int ranX = rand() % 4;  // Fixed: was % 3, should be % 4 to include index 3
+	int ranY = rand() % 4;  // Fixed: was % 3, should be % 4 to include index 3
 	if (arr[ranX][ranY] == 0) {
-	    arr[ranX][ranY] = 2;
+	    // 10% chance to spawn a 4, 90% chance to spawn a 2
+	    arr[ranX][ranY] = (rand() % 10 == 0) ? 4 : 2;
 	    break;
 	}
     }
